@@ -3,14 +3,15 @@ from routes.user_routes import router as user_router
 from db import get_db,DATABASE_URL
 from sqlalchemy import create_engine
 import os
+from db import DATABASE_URL
 from models import Base
 app=FastAPI()
 
 app.include_router(user_router)
 #to create database
-if not os.path.exists("test.db"):
-    engine=create_engine(DATABASE_URL)
-    Base.metadata.create_all(bind=engine)
+
+engine=create_engine(DATABASE_URL)
+Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def read_root():
