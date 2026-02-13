@@ -1,21 +1,44 @@
 from fastapi import FastAPI
 from routes.user_routes import router as user_router
+from routes.ai_response_routes import router as ai_response_router
+from routes.email_routes import router as email_router
 from db import get_db,DATABASE_URL
 from sqlalchemy import create_engine
 import os
-from db import DATABASE_URL
 from models import Base
-app=FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
+app = FastAPI()
+
+# cors
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(user_router)
+app.include_router(ai_response_router)
+app.include_router(email_router)
+
 #to create database
 
 engine=create_engine(DATABASE_URL)
-Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(engine)
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def read_root():
     return {"Hello": "World"}
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    from fastapi import Response
+    return Response(status_code=204)
+
+
+
 
 if __name__ == "__main__":
     import uvicorn
